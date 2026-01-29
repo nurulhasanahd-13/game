@@ -1,150 +1,117 @@
-let move_speed = 3,
-  gravity = 0.5;
-let bird = document.querySelector(".bird");
-let img = document.getElementById("bird-1");
-let sound_point = new Audio("sounds effect/point.wav");
-let sound_die = new Audio("sounds effect/die.wav");
-let sound_tap = new Audio("sounds effect/tap.wav");
+// game.js
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-// mengambil properti element burung
-let bird_props = bird.getBoundingClientRect();
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
 
-// bagian ini memberikan nilai returns DOMReact -> top, right, bottom, left, x, y,
-let background = document.querySelector(".background").getBoundingClientRect();
+let birdY, velocity, pipes, score, gameOver;
 
-let score_val = document.querySelector(".score_val");
-let message = document.querySelector(".message");
-let score_title = document.querySelector(".score_title");
+const gravity = 0.6;
+const jump = -10;
+const birdX = 80;
+const birdRadius = 20;
+const pipeWidth = 60;
+const pipeGap = 160;
+const pipeSpeed = 3;
 
-let tap_val = document.querySelector(".tap_val");
+function reset() {
+  birdY = canvas.height / 2;
+  velocity = 0;
+  pipes = [];
+  score = 0;
+  gameOver = false;
+}
 
-let game_state = "Start";
-img.style.display = "none";
-message.classList.add("messageStyle");
+reset();
 
-sound_tap.play();
-
-// bagian ini dijalankan saat menekan tombol enter dan keadaan game Play
-document.addEventListener("keydown", (e) => {
-  if (e.key == "Enter" && game_state != "Play") {
-    document.querySelectorAll(".pipe_sprite").forEach((e) => {
-      e.remove();
-    });
-    img.style.display = "block";
-    bird.style.top = "40vh";
-    game_state = "Play"; // menampilkan teks play
-    message.innerHTML = ""; // menampilkan pesan
-    score_title.innerHTML = "Skor : "; // menampilkan skor
-    score_val.innerHTML = "0"; // menampilkan skor awal 0
-    message.classList.remove("messageStyle");
-    play();
+function flap() {
+  if (gameOver) {
+    reset();
+  } else {
+    velocity = jump;
   }
+}
+
+// MOBILE
+canvas.addEventListener("touchstart", flap);
+
+// DESKTOP (mouse)
+canvas.addEventListener("mousedown", flap);
+
+// DESKTOP (keyboard)
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") flap();
 });
 
-// bagian ini yang menjalankan game
-function play() {
-  function move() {
-    if (game_state != "Play") return;
-
-    let pipe_sprite = document.querySelectorAll(".pipe_sprite");
-    pipe_sprite.forEach((element) => {
-      let pipe_sprite_props = element.getBoundingClientRect();
-      bird_props = bird.getBoundingClientRect();
-
-      if (pipe_sprite_props.right <= 0) {
-        element.remove();
-      } else {
-        if (
-          bird_props.left < pipe_sprite_props.left + pipe_sprite_props.width &&
-          bird_props.left + bird_props.width > pipe_sprite_props.left &&
-          bird_props.top < pipe_sprite_props.top + pipe_sprite_props.height &&
-          bird_props.top + bird_props.height > pipe_sprite_props.top
-        ) {
-          game_state = "End";
-          message.innerHTML =
-            "Game Over.. ".fontcolor("red") +
-            "<br>Tekan Enter untuk memulai kembali.";
-          message.classList.add("messageStyle");
-          img.style.display = "none";
-          sound_die.play();
-          return;
-        } else {
-          if (
-            pipe_sprite_props.right < bird_props.left &&
-            pipe_sprite_props.right + move_speed >= bird_props.left &&
-            element.increase_score == "1"
-          ) {
-            score_val.innerHTML = +score_val.innerHTML + 1;
-            sound_point.play();
-            score_val.innerHTML = +score_val.innerHTML + 1;
-          }
-          element.style.left = pipe_sprite_props.left - move_speed + "px";
-        }
-      }
-    });
-    requestAnimationFrame(move);
-  }
-  requestAnimationFrame(move);
-
-  let bird_dy = 0;
-
-  function apply_gravity() {
-    if (game_state != "Play") return;
-    bird_dy = bird_dy + gravity;
-    document.addEventListener("keydown", (e) => {
-      if (e.key == "ArrowUp" || e.key == " ") {
-        img.src = "images/bird-2.png";
-        bird_dy = -7.6;
-      }
-    });
-
-    document.addEventListener("keyup", (e) => {
-      if (e.key == "ArrowUp" || e.key == " ") {
-        img.src = "images/bird.png";
-      }
-    });
-
-    if (bird_props.top <= 0 || bird_props.bottom >= background.bottom) {
-      game_state = "End";
-      message.style.left = "28vw";
-      window.location.reload();
-      message.classList.remove("messageStyle");
-      return;
-    }
-    bird.style.top = bird_props.top + bird_dy + "px";
-    bird_props = bird.getBoundingClientRect();
-    requestAnimationFrame(apply_gravity);
-  }
-  requestAnimationFrame(apply_gravity);
-
-  let pipe_separation = 0;
-
-  let pipe_gap = 35;
-
-  function create_pipe() {
-    if (game_state != "Play") return;
-
-    if (pipe_separation > 115) {
-      pipe_separation = 0;
-
-      let pipe_posi = Math.floor(Math.random() * 43) + 8;
-      let pipe_sprite_inv = document.createElement("div");
-      pipe_sprite_inv.className = "pipe_sprite";
-      pipe_sprite_inv.style.top = pipe_posi - 70 + "vh";
-      pipe_sprite_inv.style.left = "100vw";
-
-      document.body.appendChild(pipe_sprite_inv);
-
-      let pipe_sprite = document.createElement("div");
-      pipe_sprite.className = "pipe_sprite";
-      pipe_sprite.style.top = pipe_posi + pipe_gap + "vh";
-      pipe_sprite.style.left = "100vw";
-      pipe_sprite.increase_score = "1";
-
-      document.body.appendChild(pipe_sprite);
-    }
-    pipe_separation++;
-    requestAnimationFrame(create_pipe);
-  }
-  requestAnimationFrame(create_pipe);
+function addPipe() {
+  const top = Math.random() * (canvas.height - pipeGap - 120) + 60;
+  pipes.push({ x: canvas.width, top, passed: false });
 }
+
+setInterval(addPipe, 1500);
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!gameOver) {
+    velocity += gravity;
+    birdY += velocity;
+  }
+
+  // Bird
+  ctx.fillStyle = "yellow";
+  ctx.beginPath();
+  ctx.arc(birdX, birdY, birdRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pipes
+  ctx.fillStyle = "green";
+  pipes.forEach(p => {
+    if (!gameOver) p.x -= pipeSpeed;
+
+    ctx.fillRect(p.x, 0, pipeWidth, p.top);
+    ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, canvas.height);
+
+    // Collision
+    if (
+      birdX + birdRadius > p.x &&
+      birdX - birdRadius < p.x + pipeWidth &&
+      (birdY - birdRadius < p.top ||
+        birdY + birdRadius > p.top + pipeGap)
+    ) {
+      gameOver = true;
+    }
+
+    // Score
+    if (!p.passed && p.x + pipeWidth < birdX) {
+      p.passed = true;
+      score++;
+    }
+  });
+
+  // Out of bounds
+  if (birdY > canvas.height || birdY < 0) gameOver = true;
+
+  // Score text
+  ctx.fillStyle = "#000";
+  ctx.font = "24px Arial";
+  ctx.fillText("Score: " + score, 20, 40);
+
+  if (gameOver) {
+    ctx.font = "32px Arial";
+    ctx.fillText(
+      "Tap / Click / Space to Restart",
+      canvas.width / 2 - 200,
+      canvas.height / 2
+    );
+  }
+
+  requestAnimationFrame(update);
+}
+
+update();
