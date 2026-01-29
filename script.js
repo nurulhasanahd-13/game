@@ -1,4 +1,3 @@
-// game.js
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -9,15 +8,20 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-let birdY, velocity, pipes, score, gameOver;
-
+let birdY = canvas.height / 2;
+let velocity = 0;
 const gravity = 0.6;
 const jump = -10;
-const birdX = 80;
-const birdRadius = 20;
-const pipeWidth = 60;
-const pipeGap = 160;
-const pipeSpeed = 3;
+
+let pipes = [];
+let score = 0;
+let gameOver = false;
+
+function addPipe() {
+  const gap = 160;
+  const top = Math.random() * (canvas.height - gap - 120) + 60;
+  pipes.push({ x: canvas.width, top });
+}
 
 function reset() {
   birdY = canvas.height / 2;
@@ -27,8 +31,6 @@ function reset() {
   gameOver = false;
 }
 
-reset();
-
 function flap() {
   if (gameOver) {
     reset();
@@ -37,21 +39,20 @@ function flap() {
   }
 }
 
-// MOBILE
+/* ===== TAMBAHAN INPUT (TIDAK UBAH GAME) ===== */
+
+// Mobile
 canvas.addEventListener("touchstart", flap);
 
-// DESKTOP (mouse)
+// Desktop mouse
 canvas.addEventListener("mousedown", flap);
 
-// DESKTOP (keyboard)
+// Desktop keyboard
 document.addEventListener("keydown", e => {
   if (e.code === "Space") flap();
 });
 
-function addPipe() {
-  const top = Math.random() * (canvas.height - pipeGap - 120) + 60;
-  pipes.push({ x: canvas.width, top, passed: false });
-}
+/* ========================================== */
 
 setInterval(addPipe, 1500);
 
@@ -63,41 +64,31 @@ function update() {
     birdY += velocity;
   }
 
-  // Bird
   ctx.fillStyle = "yellow";
   ctx.beginPath();
-  ctx.arc(birdX, birdY, birdRadius, 0, Math.PI * 2);
+  ctx.arc(80, birdY, 20, 0, Math.PI * 2);
   ctx.fill();
 
-  // Pipes
   ctx.fillStyle = "green";
   pipes.forEach(p => {
-    if (!gameOver) p.x -= pipeSpeed;
+    if (!gameOver) p.x -= 3;
 
-    ctx.fillRect(p.x, 0, pipeWidth, p.top);
-    ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, canvas.height);
+    ctx.fillRect(p.x, 0, 60, p.top);
+    ctx.fillRect(p.x, p.top + 160, 60, canvas.height);
 
-    // Collision
     if (
-      birdX + birdRadius > p.x &&
-      birdX - birdRadius < p.x + pipeWidth &&
-      (birdY - birdRadius < p.top ||
-        birdY + birdRadius > p.top + pipeGap)
+      80 + 20 > p.x &&
+      80 - 20 < p.x + 60 &&
+      (birdY - 20 < p.top || birdY + 20 > p.top + 160)
     ) {
       gameOver = true;
     }
 
-    // Score
-    if (!p.passed && p.x + pipeWidth < birdX) {
-      p.passed = true;
-      score++;
-    }
+    if (p.x + 60 === 80) score++;
   });
 
-  // Out of bounds
   if (birdY > canvas.height || birdY < 0) gameOver = true;
 
-  // Score text
   ctx.fillStyle = "#000";
   ctx.font = "24px Arial";
   ctx.fillText("Score: " + score, 20, 40);
@@ -115,4 +106,3 @@ function update() {
 }
 
 update();
-
