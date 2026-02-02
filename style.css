@@ -31,6 +31,35 @@ canvas {
   font-size: 18px;
   font-weight: bold;
 }
+/* Mobile Control Button */
+.mobile-controls {
+  position: fixed;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  z-index: 10;
+  display: none;
+}
+
+.mobile-controls button {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+  background: #ff9800;
+  color: white;
+  border: none;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+}
+
+/* Muncul hanya di layar HP */
+@media (max-width: 768px) {
+  .mobile-controls {
+    display: block;
+  }
+}
+
 
 /* Desktop: tombol tidak mengganggu */
 @media (min-width: 768px) {
@@ -38,3 +67,4 @@ canvas {
     display: none;
   }
 }
+
