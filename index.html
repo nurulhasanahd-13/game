@@ -1,25 +1,36 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Flappy Bird</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-  <!-- Mobile Controls -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="X-UA-Compatible"
+      content="IE=edge"
+      <meta
+      name="viewport"
+      content="width=device-width, initial scale=1.0"
+    />
+    <title>Flappy Bird Game</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="background"></div>
+    <img src="images/bird.png" alt="bird-img" class="bird" id="bird-1" />
+    <div class="message">
+      Tekan Enter untuk memulai
+      <p>
+        spasi bawah atau panah (<span style="color: red">&uarr; </span>) ke
+        aatas menghindari pipa
+      </p>
+    </div>
+    <div class="score">
+      <span class="score_title"> </span>
+      <span class="score_val"> </span>
+    </div>
+    <!-- Mobile Controls -->
 <div class="mobile-controls">
   <button id="jumpBtn">TAP</button>
 </div>
 
-<body>
-
-  <canvas id="game"></canvas>
-
-  <!-- TOMBOL TAMBAHAN (TIDAK MERUSAK GAME) -->
-  <button id="btnFlap">FLAP</button>
-
-  <script src="game.js"></script>
-</body>
+  </body>
 </html>
-
