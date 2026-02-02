@@ -32,9 +32,19 @@ canvas {
   font-weight: bold;
 }
 
+const jumpBtn = document.getElementById("jumpBtn");
+
+if (jumpBtn) {
+  jumpBtn.addEventListener("touchstart", () => {
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: " " })
+    );
+  });
+}
 /* Desktop: tombol tidak mengganggu */
 @media (min-width: 768px) {
   #btnFlap {
     display: none;
   }
 }
+
